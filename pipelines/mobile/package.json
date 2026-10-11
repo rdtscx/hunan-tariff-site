@@ -1,0 +1,14 @@
+{
+  "name": "mobile-tariff-crawler",
+  "version": "1.0.0",
+  "description": "中国移动资费数据爬虫",
+  "main": "crawl_all.js",
+  "scripts": {
+    "start": "node crawl_all.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "crypto-js": "^4.2.0",
+    "uuid": "^9.0.0"
+  }
+}

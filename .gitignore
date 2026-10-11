@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+pipelines/mobile/node_modules/
+
+# Build output
+dist/
+
+# Cache
+cache/
+*.cache
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP
+vendor/
+composer.lock
+
+# Temporary
+tmp/
+temp/
