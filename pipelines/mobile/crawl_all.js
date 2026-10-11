@@ -32,11 +32,11 @@ async function crawlProvince(provinceCode, provinceName) {
   for (const type1 of [config.type1.personal, config.type1.enterprise]) {
     for (const type2 of [config.type2.package, config.type2.addon, config.type2.marketing]) {
       const result = await getTariffList(provinceCode, config.tariffAttr.national, type1, type2);
-      if (result && result.data && result.data.list) {
-        allItems.push(...result.data.list);
-        console.log(`  全网 type1=${type1} type2=${type2}: ${result.data.list.length} 条`);
+      if (result && result.data && result.data.beans) {
+        allItems.push(...result.data.beans);
+        console.log(`  全网 type1=${type1} type2=${type2}: ${result.data.beans.length} 条`);
       }
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 2000));
     }
   }
 
@@ -44,11 +44,11 @@ async function crawlProvince(provinceCode, provinceName) {
   for (const type1 of [config.type1.personal, config.type1.enterprise]) {
     for (const type2 of [config.type2.package, config.type2.addon, config.type2.marketing]) {
       const result = await getTariffList(provinceCode, config.tariffAttr.provincial, type1, type2);
-      if (result && result.data && result.data.list) {
-        allItems.push(...result.data.list);
-        console.log(`  省份 type1=${type1} type2=${type2}: ${result.data.list.length} 条`);
+      if (result && result.data && result.data.beans) {
+        allItems.push(...result.data.beans);
+        console.log(`  省份 type1=${type1} type2=${type2}: ${result.data.beans.length} 条`);
       }
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 2000));
     }
   }
 
@@ -56,7 +56,7 @@ async function crawlProvince(provinceCode, provinceName) {
   const uniqueItems = [];
   const seen = new Set();
   for (const item of allItems) {
-    const key = item.tariffId || item.id || JSON.stringify(item);
+    const key = item.tariffSeqno || item.tariffId || item.id || JSON.stringify(item);
     if (!seen.has(key)) {
       seen.add(key);
       uniqueItems.push(item);
