@@ -19,6 +19,21 @@ mkdir -p "$DIST_DIR"
 cp "$ROOT_DIR/index.html" "$DIST_DIR/" 2>/dev/null || echo "警告: index.html 不存在"
 cp "$ROOT_DIR/api.php" "$DIST_DIR/" 2>/dev/null || echo "警告: api.php 不存在"
 
+# 验证关键文件大小，防止部署空文件
+for f in index.html api.php; do
+  if [ -f "$DIST_DIR/$f" ]; then
+    size=$(stat -c%s "$DIST_DIR/$f" 2>/dev/null || stat -f%z "$DIST_DIR/$f" 2>/dev/null || echo 0)
+    if [ "$size" -lt 100 ]; then
+      echo "错误: $f 文件大小异常 ($size bytes)，中止构建"
+      exit 1
+    fi
+    echo "$f 大小验证通过: $size bytes"
+  else
+    echo "错误: $f 不存在，中止构建"
+    exit 1
+  fi
+done
+
 # 复制数据目录
 if [ -d "$ROOT_DIR/data" ]; then
   cp -r "$ROOT_DIR/data" "$DIST_DIR/"

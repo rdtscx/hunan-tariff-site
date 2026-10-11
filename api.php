@@ -61,7 +61,9 @@ switch($action){
 case 'section':$items=get_items($section);$result=['timestamp'=>date('Y-m-d H:i:s'),'section'=>$section,'error'=>null,'items'=>$items,'total'=>count($items),'_source'=>'官方API实时查询'];
 file_put_contents($cf,json_encode($result,JSON_UNESCAPED_UNICODE));out($result);break;
 case 'latest':$sf=__DIR__.'/data/latest.json';$sd=file_exists($sf)?json_decode(file_get_contents($sf),true):null;
-if($sd&&isset($sd['sections'])){$result=$sd;$result['default']='beijing';$result['_source']='统计缓存，明细实时查询';}else{
+if($sd&&isset($sd['sections'])){$result=$sd;$result['default']='beijing';$result['_source']='统计缓存，明细实时查询';}
+elseif($sd&&isset($sd['provinces'])){$secs=[];$name_to_section=array_flip($GLOBALS['PROV_NAME']);foreach($sd['provinces'] as $pname=>$total){$sid=isset($name_to_section[$pname])?$name_to_section[$pname]:strtolower($pname);$secs[]=['section'=>$sid,'name'=>$pname,'total'=>intval($total)];}$result=['updated'=>isset($sd['updateTime'])?$sd['updateTime']:date('Y-m-d H:i:s'),'default'=>'beijing','sections'=>$secs,'quanguo_total'=>isset($sd['provinces']['全国'])?intval($sd['provinces']['全国']):0,'prov_total'=>count($secs),'prov_dist'=>new stdClass(),'prov_stats'=>['hunan'=>['total'=>0,'personal'=>0,'gq'=>0,'dist'=>new stdClass()]],'hunan_total'=>0,'dist'=>new stdClass(),'def_dist'=>['套餐'=>0,'加装包'=>0,'营销活动'=>0],'_source'=>'统计缓存，明细实时查询'];}
+else{
 $secs=[];foreach($GLOBALS['PROV_NAME'] as $sid=>$sname)$secs[]=['section'=>$sid,'name'=>$sname,'total'=>0];
 $result=['updated'=>date('Y-m-d H:i:s'),'default'=>'beijing','sections'=>$secs,'quanguo_total'=>0,'prov_total'=>0,'prov_dist'=>new stdClass(),'prov_stats'=>['hunan'=>['total'=>0,'personal'=>0,'gq'=>0,'dist'=>new stdClass()]],'hunan_total'=>0,'dist'=>new stdClass(),'def_dist'=>['套餐'=>0,'加装包'=>0,'营销活动'=>0],'_source'=>'官方API实时查询'];}
 file_put_contents($cf,json_encode($result,JSON_UNESCAPED_UNICODE));out($result);break;
