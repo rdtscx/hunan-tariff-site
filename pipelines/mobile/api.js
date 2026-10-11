@@ -52,7 +52,10 @@ async function getTariffList(provinceCode, tariffAttr, type1, type2) {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36'
       },
       timeout: 30000,
-      httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
+      httpsAgent: new (require('https').Agent)({
+        rejectUnauthorized: false,
+        secureOptions: require('crypto').constants.SSL_OP_LEGACY_SERVER_CONNECT
+      })
     });
 
     if (response.data && response.data.body) {
