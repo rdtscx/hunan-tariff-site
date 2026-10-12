@@ -102,6 +102,39 @@ function updateDefaultProvince(latestPath) {
   }
 }
 
+// 将移动公告数据中的湖南转换为北京
+function convertAnnounceToBeijing(announcePath) {
+  try {
+    if (!fs.existsSync(announcePath)) return;
+    const data = JSON.parse(fs.readFileSync(announcePath, 'utf8'));
+    let changed = false;
+    (data.items || []).forEach(item => {
+      for (const field of ['title', 'summary', 'content']) {
+        if (typeof item[field] === 'string' && item[field].includes('湖南')) {
+          item[field] = item[field].replace(/湖南/g, '北京');
+          changed = true;
+        }
+      }
+      if (typeof item.page_url === 'string') {
+        item.page_url = item.page_url.replace(/hn\/index_731_731/g, 'bj/index_010_010');
+      }
+      if (Array.isArray(item.attachments)) {
+        item.attachments.forEach(att => {
+          if (typeof att.url === 'string') {
+            att.url = att.url.replace(/\/hn\//g, '/bj/');
+          }
+        });
+      }
+    });
+    if (changed) {
+      fs.writeFileSync(announcePath, JSON.stringify(data, null, 2));
+      console.log(`  ✓ 公告数据已转换为北京`);
+    }
+  } catch (e) {
+    console.log(`  ✗ 公告转换失败: ${e.message}`);
+  }
+}
+
 // 确保北京明细数据存在
 function ensureBeijingData(dataDir) {
   const beijingPath = path.join(dataDir, 'beijing.json');
@@ -130,6 +163,11 @@ async function syncOperator(op) {
 
   // 同步 announce.json
   await downloadJson(`${remotePrefix}/announce.json`, path.join(dataDir, 'announce.json'));
+
+  // 移动公告数据：湖南→北京转换
+  if (op.key === 'mobile') {
+    convertAnnounceToBeijing(path.join(dataDir, 'announce.json'));
+  }
 
   // 同步省份明细数据
   for (const prov of PROVINCES) {
