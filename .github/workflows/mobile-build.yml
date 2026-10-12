@@ -1,8 +1,9 @@
-name: Mobile Tariff Data Build & Deploy
+name: Multi-Operator Tariff Data Build & Deploy
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    # 北京时间早8点 (UTC 0:00) 和晚8点 (UTC 12:00)
+    - cron: '0 0,12 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,10 +29,10 @@ jobs:
           cd pipelines/mobile
           npm install
 
-      - name: Run data crawler
+      - name: Run multi-operator data sync
         run: |
           cd pipelines/mobile
-          node crawl_all.js
+          node sync_all.js
         env:
           NODE_TLS_REJECT_UNAUTHORIZED: '0'
 
