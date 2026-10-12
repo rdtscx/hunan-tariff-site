@@ -1,5 +1,5 @@
 #!/bin/bash
-# 构建脚本：将网站文件复制到dist目录
+# 构建脚本：将网站文件复制到dist目录（支持多运营商子目录）
 
 set -e
 
@@ -37,10 +37,33 @@ done
 # 复制数据目录
 if [ -d "$ROOT_DIR/data" ]; then
   cp -r "$ROOT_DIR/data" "$DIST_DIR/"
-  echo "数据文件已复制"
+  echo "移动数据文件已复制"
 else
   echo "警告: data 目录不存在"
 fi
+
+# 复制运营商子目录（联通/电信/广电）
+for op_dir in unicom telecom gb; do
+  if [ -d "$ROOT_DIR/$op_dir" ]; then
+    mkdir -p "$DIST_DIR/$op_dir"
+    cp "$ROOT_DIR/$op_dir/index.html" "$DIST_DIR/$op_dir/" 2>/dev/null || echo "警告: $op_dir/index.html 不存在"
+    if [ -d "$ROOT_DIR/$op_dir/data" ]; then
+      cp -r "$ROOT_DIR/$op_dir/data" "$DIST_DIR/$op_dir/"
+      echo "$op_dir 数据文件已复制"
+    fi
+    # 验证子页面大小
+    if [ -f "$DIST_DIR/$op_dir/index.html" ]; then
+      size=$(stat -c%s "$DIST_DIR/$op_dir/index.html" 2>/dev/null || echo 0)
+      if [ "$size" -lt 100 ]; then
+        echo "警告: $op_dir/index.html 文件大小异常 ($size bytes)"
+      else
+        echo "$op_dir/index.html 大小验证通过: $size bytes"
+      fi
+    fi
+  else
+    echo "警告: $op_dir 目录不存在，跳过"
+  fi
+done
 
 # 创建cache目录
 mkdir -p "$DIST_DIR/cache"
@@ -53,5 +76,9 @@ for dir in css js images assets; do
   fi
 done
 
-echo "构建完成！"
-ls -la "$DIST_DIR/"
+echo ""
+echo "构建完成！目录结构:"
+find "$DIST_DIR" -maxdepth 2 -type f -name "*.html" -o -name "*.php" -o -name "latest.json" | sort
+echo ""
+echo "dist 目录总大小:"
+du -sh "$DIST_DIR"

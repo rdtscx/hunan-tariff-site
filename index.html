@@ -751,17 +751,6 @@ a.opc{text-decoration:none;display:block}
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 </style>
-<script>
-/* 主题偏好持久化：页面渲染前恢复，避免闪烁 */
-(function(){
-  try{
-    var t = localStorage.getItem("tariff_theme");
-    if(t === "dark" || t === "light"){
-      document.documentElement.setAttribute("data-theme", t);
-    }
-  }catch(e){}
-})();
-</script>
 </head>
 <body>
 <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
@@ -819,7 +808,7 @@ a.opc{text-decoration:none;display:block}
       <div class="panel glass">
         <div class="ph">
           <h2 class="pt">省份资费统计</h2>
-          <button class="pick" id="ovProv" data-pick="prov" data-target="ov"><span class="pk-t">北京</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
+          <button class="pick" id="ovProv" data-pick="prov" data-target="ov"><span class="pk-t">湖南</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
           <span class="ps" id="ovDesc">六大类分布</span>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
@@ -857,7 +846,7 @@ a.opc{text-decoration:none;display:block}
     <section class="view" id="v-prov">
       <div class="tool glass" data-scope="p">
         <div class="search"><span class="si">⌕</span><input type="search" data-f="search" placeholder="搜索名称 / 资费标准 / 说明关键词…"></div>
-        <button class="pick" id="pvProv" data-pick="prov" data-target="pv"><span class="pk-t">北京</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
+        <button class="pick" id="pvProv" data-pick="prov" data-target="pv"><span class="pk-t">湖南</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
         <button class="pick" data-pick="own" data-scope="p"><span class="pk-t">全部归属</span><i class="pk-a">▾</i></button>
         <button class="pick" data-pick="type" data-scope="p"><span class="pk-t">全部类型</span><i class="pk-a">▾</i></button>
         <div class="seg" data-f="sort">
@@ -886,7 +875,7 @@ a.opc{text-decoration:none;display:block}
 
     <section class="view" id="v-announce">
       <div class="panel glass">
-        <div class="ph"><h2 class="pt" id="anTitle">北京移动公告</h2><span class="ps" id="anDesc">来源：官网公告</span></div>
+        <div class="ph"><h2 class="pt" id="anTitle">湖南移动公告</h2><span class="ps" id="anDesc">来源：官网公告</span></div>
         <div class="an" id="anBox"></div>
       </div>
     </section>
@@ -895,14 +884,14 @@ a.opc{text-decoration:none;display:block}
       <div class="panel glass">
         <div class="ph"><h2 class="pt">关于本页</h2></div>
         <div class="ab">
-          <p>本页面展示中国移动「全网资费」及各省（默认北京）的公开资费资料，数据由自动监控程序定期抓取官网并存入代码仓库，再发布为静态网页。</p>
+          <p>本页面展示中国移动「全网资费」及各省（默认湖南）的公开资费资料，数据由自动监控程序定期抓取官网并存入代码仓库，再发布为静态网页。</p>
           <ul>
-            <li><b>数据来源：</b>中国移动官网公开资费专区（北京 + 全国，31 省可选）</li>
+            <li><b>数据来源：</b>中国移动官网公开资费专区（湖南 + 全国，31 省可选）</li>
             <li><b>页面版本：</b>2026-09-27（看到这一行说明是最新版；看不到就是手机缓存，请清缓存或用无痕模式打开）</li>
-            <li><b>省份切换：</b>「省份资费」页可自助选择其他省份，默认北京；变化历史同样按省份标注</li>
+            <li><b>省份切换：</b>「省份资费」页可自助选择其他省份，默认湖南；变化历史同样按省份标注</li>
             <li><b>更新方式：</b>自动定时抓取比对，有变化即刷新本页</li>
             <li><b>数据口径：</b>以官网「适用地区」「适用范围」字段为准，仅供参考</li>
-            <li><b>运营商：</b>顶部可切换运营商主题，目前仅中国移动已接入抓取数据</li>
+            <li><b>运营商：</b>顶部可切换运营商主题，移动/联通/电信/广电四大运营商已接入数据</li>
             <li><b>免责声明：</b>展示内容可能存在延迟或误差，办理业务请以营业厅 / 官方客服信息为准</li>
           </ul>
         </div>
@@ -1014,7 +1003,6 @@ a.opc{text-decoration:none;display:block}
 var D = { updated:"", stats:{}, sections:[], prov_stats:{}, hunan_dist:{}, quanguo_dist:{},
             items:[], qitems:null, history:[], announce:{updated:"",count:0,items:[]} };
 var DATA_BASE = "./data/";
-var API_BASE = "./api.php";
 var CK_WF = "mobile-build.yml";
 var REAL_OK = false;
 function __j(u){
@@ -1024,28 +1012,7 @@ function __j(u){
   });
 }
 function __loadSec(sec){
-  // 优先调用中国移动官方API实时查询，失败回退静态文件
-  return fetch(API_BASE + "?action=section&section=" + encodeURIComponent(sec), {cache:"no-store"})
-    .then(function(r){ if(!r.ok){ throw new Error("api HTTP " + r.status); } return r.json(); })
-    .then(function(j){
-      if(j && j.items && j.items.length > 0){ return j.items; }
-      throw new Error("api empty");
-    })
-    .catch(function(){
-      return __j(DATA_BASE + sec + ".json").then(function(j){ return (j && j.items) ? j.items : []; });
-    });
-}
-function __loadLatest(){
-  // 优先调用实时API，失败回退静态文件
-  return fetch(API_BASE + "?action=latest", {cache:"no-store"})
-    .then(function(r){ if(!r.ok){ throw new Error("api HTTP " + r.status); } return r.json(); })
-    .then(function(j){
-      if(j && j.sections && j.sections.length > 0){ return j; }
-      throw new Error("api empty");
-    })
-    .catch(function(){
-      return __j(DATA_BASE + "latest.json");
-    });
+  return __j(DATA_BASE + sec + ".json").then(function(j){ return (j && j.items) ? j.items : []; });
 }
 function __tag(arr){
   if(!arr){ return; }
@@ -1143,13 +1110,13 @@ function __fail(e){
 }
 function __bootReal(){
   return Promise.all([
-    __loadLatest(),
+    __j(DATA_BASE + "latest.json"),
     __j(DATA_BASE + "announce.json").catch(function(){ return {updated:"",count:0,items:[]}; })
   ]).then(function(rs){
     var latest = rs[0] || {}, hist = [], ann = rs[1] || {};
     D.updated = latest.updated || "";
     var ps = latest.prov_stats || {};
-    var def = latest.default || "beijing";
+    var def = latest.default || "hunan";
     var hd = latest.dist || {};
     var hp = 0, hg = 0;
     Object.keys(hd).forEach(function(k){
@@ -1197,8 +1164,7 @@ function __bootReal(){
     // 全国资费单独一份
     var qp = __loadSec("quanguo").then(function(qi){ D.qitems = qi || []; __tag(D.qitems); })
               .catch(function(){ D.qitems = null; });
-    var pp = __loadSec(def).then(function(pi){ D.items = pi || []; __tag(D.items); })
-              .catch(function(){ D.items = []; });
+    var pp = __loadSec(def).then(function(pi){ D.items = pi || []; __tag(D.items); });
     return Promise.all([qp, pp]);
   }).then(function(){
     // 归一化：非移动站点结构(title/fee/detail) -> 统一结构(name/fields)
@@ -1215,21 +1181,6 @@ function __bootReal(){
     emptyD = true;
     for(var k2 in D.quanguo_dist){ if(D.quanguo_dist.hasOwnProperty(k2)){ emptyD = false; break; } }
     if(emptyD && D.qitems){ D.quanguo_dist = __distOf(D.qitems); }
-    // prov_stats 兜底：从 dist 重新计算 personal/gq/total
-    if(!D.prov_stats){ D.prov_stats = {}; }
-    if(!D.prov_stats[state.prov]){ D.prov_stats[state.prov] = {}; }
-    var _ps = D.prov_stats[state.prov];
-    if(!_ps.total){ _ps.total = D.items.length; }
-    if(!_ps.personal || !_ps.gq){
-      var _p = 0, _g = 0;
-      for(var _dk in D.hunan_dist){
-        if(_dk.indexOf("政企") >= 0){ for(var _gk in D.hunan_dist[_dk]){ _g += D.hunan_dist[_dk][_gk]; } }
-        else { for(var _pk in D.hunan_dist[_dk]){ _p += D.hunan_dist[_dk][_pk]; } }
-      }
-      if(!_ps.personal){ _ps.personal = _p; }
-      if(!_ps.gq){ _ps.gq = _g; }
-    }
-    if(!_ps.dist || Object.keys(_ps.dist).length === 0){ _ps.dist = D.hunan_dist; }
     REAL_OK = true;
     /* 单处渲染异常不应阻断后续流程，尤其是历史记录的异步加载 */
     try { boot(); } catch(e) { if(window.console){ console.error(e); } }
@@ -1241,10 +1192,10 @@ function __bootReal(){
 }
 
 var OPS = [
-  { key:"mobile", name:"中国移动", short:"移动", logo:"移", c1:"#0085d0", c2:"#4cc9f0", ready:true, src:"官方API实时查询", href:"#" },
-  { key:"unicom", name:"中国联通", short:"联通", logo:"联", c1:"#e2231a", c2:"#ff7a45", ready:false, src:"数据接入中", href:"#" },
-  { key:"telecom", name:"中国电信", short:"电信", logo:"电", c1:"#0057b8", c2:"#00a0e9", ready:false, src:"数据接入中", href:"#" },
-  { key:"broadnet", name:"中国广电", short:"广电", logo:"广", c1:"#c8102e", c2:"#ff4d6d", ready:false, src:"数据接入中", href:"#" }
+  { key:"mobile", name:"中国移动", short:"移动", logo:"移", c1:"#0085d0", c2:"#4cc9f0", ready:true, src:"实时抓取 · 自动更新", href:"./index.html" },
+  { key:"unicom", name:"中国联通", short:"联通", logo:"联", c1:"#e2231a", c2:"#ff7a45", ready:true, src:"实时抓取 · 自动更新", href:"./unicom/" },
+  { key:"telecom", name:"中国电信", short:"电信", logo:"电", c1:"#0057b8", c2:"#00a0e9", ready:true, src:"实时抓取 · 自动更新", href:"./telecom/" },
+  { key:"broadnet", name:"中国广电", short:"广电", logo:"广", c1:"#c8102e", c2:"#ff4d6d", ready:true, src:"实时抓取 · 自动更新", href:"./gb/" }
 ];
 var OP_MAP = {};
 OPS.forEach(function(o){ OP_MAP[o.key] = o; });
@@ -1259,7 +1210,7 @@ function rebuildProv(){
 rebuildProv();
 
 var state = {
-  view:"overview", prov:"beijing", op:"mobile",
+  view:"overview", prov:"hunan", op:"mobile",
   q:{ search:"", own:"", type:"", sort:"time", dir:"desc", page:1 },
   p:{ search:"", own:"", type:"", sort:"time", dir:"desc", page:1 },
   h:""
@@ -1381,6 +1332,16 @@ function emptyBox(txt){
 }
 
 /* ---------- 列表 ---------- */
+// 从当前数据中动态提取某字段的所有唯一值（用于筛选选项）
+function fieldValues(scope, field){
+  var arr = (scope === "q" && D.qitems) ? D.qitems : D.items;
+  var set = {};
+  (arr || []).forEach(function(it){
+    var v = f(it, field);
+    if(v){ set[v] = true; }
+  });
+  return Object.keys(set).sort();
+}
 function filtered(scope){
   var s = state[scope], arr = ((scope === "q" && D.qitems) ? D.qitems : D.items).slice();
   var kw = s.search.trim().toLowerCase();
@@ -1795,15 +1756,14 @@ function renderAnnounce(){
   var a = D.announce || {};
   var box = document.getElementById("anBox"), desc = document.getElementById("anDesc");
   var op = OP_MAP[state.op];
-  var provName = NAME_MAP[state.prov] || "北京";
-  document.getElementById("anTitle").textContent = hasData() ? (provName + "移动公告") : (op.name + "公告");
-  document.getElementById("anTabTxt").textContent = hasData() ? (provName + "公告") : (op.short + "公告");
+  document.getElementById("anTitle").textContent = hasData() ? "湖南移动公告" : (op.name + "公告");
+  document.getElementById("anTabTxt").textContent = hasData() ? "湖南公告" : (op.short + "公告");
   if(!hasData()){
     desc.textContent = "暂无接入";
     box.innerHTML = emptyBox(op.name + "公告源待接入");
     return;
   }
-  desc.textContent = "来源：" + provName + "移动官网公告 · 更新于 " + (a.updated || "—");
+  desc.textContent = "来源：湖南移动官网公告 · 更新于 " + (a.updated || "—");
   var items = a.items || [];
   if(!items.length){ box.innerHTML = '<div style="color:var(--tx3);font-size:13px">暂无公告</div>'; return; }
   box.innerHTML = items.map(function(x, i){
@@ -1961,7 +1921,7 @@ function closeModal(){ document.getElementById("mask").classList.remove("on"); }
 /* ---------- 检测最新资费 ---------- */
 var CK = { t:null, n:0, base:"", max:40 };
 function ckGhUrl(){
-  return "https://github.com/rdtscx/hunan-tariff-site/actions/workflows/" + CK_WF;
+  return "https://github.com/WoShiYiGeManHuaJia/hunan-tariff-site/actions/workflows/" + CK_WF;
 }
 function ckOpen(){
   var m = document.getElementById("ckMask");
@@ -1998,7 +1958,7 @@ function ckTick(){
   var mt = document.getElementById("ckMeta");
   var bar = document.getElementById("ckBar");
   if(bar){ bar.style.width = Math.min(100, Math.round(CK.n / CK.max * 100)) + "%"; }
-  fetch(API_BASE + "?action=latest&_=" + Date.now(), {cache:"no-store"}).then(function(r){
+  fetch(DATA_BASE + "latest.json?_=" + Date.now(), {cache:"no-store"}).then(function(r){
     if(!r.ok){ throw new Error("HTTP " + r.status); }
     return r.json();
   }).then(function(j){
@@ -2032,7 +1992,7 @@ function ckTick(){
 
 
 /* ---------- 一键触发云端抓取（令牌仅存本机 localStorage） ---------- */
-var CK_OWNER = "rdtscx";
+var CK_OWNER = "WoShiYiGeManHuaJia";
 var CK_REPO  = "hunan-tariff-site";
 var CK_API   = "https://api.github.com/repos/" + CK_OWNER + "/" + CK_REPO;
 function ckTkKey(){ return "ghpat__" + CK_REPO + "__" + CK_WF; }
@@ -2545,7 +2505,6 @@ document.addEventListener("click", function(e){
       var root = document.documentElement;
       var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
-      try{ localStorage.setItem("tariff_theme", next); }catch(e){}
       var tb = document.querySelector('[data-act="theme"]');
       if(tb){ tb.textContent = next === "dark" ? "浅色" : "深色"; }
       toast(next === "dark" ? "已切换到深色模式" : "已切换到浅色模式");
@@ -2651,7 +2610,6 @@ document.addEventListener("click", function(e){
   /* 运营商卡片 */
   var opc = el.closest ? el.closest(".opc") : null;
   if(opc){
-    e.preventDefault();
     applyOp(opc.getAttribute("data-op"));
     document.getElementById("opMask").classList.remove("on");
     return;
@@ -2684,7 +2642,6 @@ document.addEventListener("click", function(e){
         setPickText(document.getElementById("pvProv"), NAME_MAP[v], fmt((PROV_MAP[v] || {}).total || 0));
         if(other){ /* 两个联动，已统一设置 */ }
         renderOverview();
-        renderAnnounce();
         toast("正在加载 " + (NAME_MAP[v] || v) + " 数据…");
         __loadSec(v).then(function(it){
           D.items = __normItems(it);
@@ -2710,7 +2667,11 @@ document.addEventListener("click", function(e){
     if(kind === "own" || kind === "type"){
       var sc = pk.getAttribute("data-scope");
       var isOwn = kind === "own";
-      var opts = isOwn ? ["全部归属","个人资费","政企资费"] : ["全部类型","套餐","加装包","营销活动"];
+      // 动态生成筛选选项：优先从当前数据提取，兜底用默认选项
+      var dynamicVals = fieldValues(sc, isOwn ? "归属" : "资费类型");
+      var defaultVals = isOwn ? ["个人资费","政企资费"] : ["套餐","加装包","营销活动"];
+      var allVals = dynamicVals.length ? dynamicVals : defaultVals;
+      var opts = [isOwn ? "全部归属" : "全部类型"].concat(allVals);
       openPicker({ title:isOwn ? "选择归属" : "选择类型", value:state[sc][kind], options:simpleOptions(opts), onPick:function(v){
         state[sc][kind] = (v === "全部归属" || v === "全部类型") ? "" : v;
         state[sc].page = 1;
@@ -2819,12 +2780,6 @@ document.getElementById("tabs").addEventListener("scroll", function(){ updateEdg
 /* ---------- 启动 ---------- */
 function boot(){
   D.items.forEach(function(x,n){ x.__i = n; });
-  /* 同步主题按钮文字 */
-  (function(){
-    var th = document.documentElement.getAttribute("data-theme");
-    var tb = document.querySelector('[data-act="theme"]');
-    if(tb){ tb.textContent = th === "dark" ? "浅色" : "深色"; }
-  })();
   document.getElementById("updTxt").textContent = "更新于 " + (D.updated || "—");
   updNavChg();
   (function(){
