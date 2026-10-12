@@ -123,6 +123,10 @@ function convertAnnounceToBeijing(announcePath) {
           if (typeof att.url === 'string') {
             att.url = att.url.replace(/\/hn\//g, '/bj/');
           }
+          if (typeof att.name === 'string' && att.name.includes('湖南')) {
+            att.name = att.name.replace(/湖南/g, '北京');
+            changed = true;
+          }
         });
       }
     });
