@@ -789,7 +789,6 @@ a.opc{text-decoration:none;display:block}
     <button class="tab" data-v="prov">省份资费</button>
     <button class="tab" data-v="history">变化历史</button>
     <button class="tab" data-v="announce"><span id="anTabTxt">移动公告</span><span class="an-dot" id="anDot"></span></button>
-    <button class="tab" data-v="about">关于</button>
   </nav>
   <span class="tabs-edge l"></span><span class="tabs-edge r"></span>
   </div>
@@ -808,7 +807,7 @@ a.opc{text-decoration:none;display:block}
       <div class="panel glass">
         <div class="ph">
           <h2 class="pt">省份资费统计</h2>
-          <button class="pick" id="ovProv" data-pick="prov" data-target="ov"><span class="pk-t">湖南</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
+          <button class="pick" id="ovProv" data-pick="prov" data-target="ov"><span class="pk-t">北京</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
           <span class="ps" id="ovDesc">六大类分布</span>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
@@ -846,7 +845,7 @@ a.opc{text-decoration:none;display:block}
     <section class="view" id="v-prov">
       <div class="tool glass" data-scope="p">
         <div class="search"><span class="si">⌕</span><input type="search" data-f="search" placeholder="搜索名称 / 资费标准 / 说明关键词…"></div>
-        <button class="pick" id="pvProv" data-pick="prov" data-target="pv"><span class="pk-t">湖南</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
+        <button class="pick" id="pvProv" data-pick="prov" data-target="pv"><span class="pk-t">北京</span><span class="pk-s"></span><i class="pk-a">▾</i></button>
         <button class="pick" data-pick="own" data-scope="p"><span class="pk-t">全部归属</span><i class="pk-a">▾</i></button>
         <button class="pick" data-pick="type" data-scope="p"><span class="pk-t">全部类型</span><i class="pk-a">▾</i></button>
         <div class="seg" data-f="sort">
@@ -875,28 +874,11 @@ a.opc{text-decoration:none;display:block}
 
     <section class="view" id="v-announce">
       <div class="panel glass">
-        <div class="ph"><h2 class="pt" id="anTitle">湖南移动公告</h2><span class="ps" id="anDesc">来源：官网公告</span></div>
+        <div class="ph"><h2 class="pt" id="anTitle">北京移动公告</h2><span class="ps" id="anDesc">来源：官网公告</span></div>
         <div class="an" id="anBox"></div>
       </div>
     </section>
 
-    <section class="view" id="v-about">
-      <div class="panel glass">
-        <div class="ph"><h2 class="pt">关于本页</h2></div>
-        <div class="ab">
-          <p>本页面展示中国移动「全网资费」及各省（默认湖南）的公开资费资料，数据由自动监控程序定期抓取官网并存入代码仓库，再发布为静态网页。</p>
-          <ul>
-            <li><b>数据来源：</b>中国移动官网公开资费专区（湖南 + 全国，31 省可选）</li>
-            <li><b>页面版本：</b>2026-09-27（看到这一行说明是最新版；看不到就是手机缓存，请清缓存或用无痕模式打开）</li>
-            <li><b>省份切换：</b>「省份资费」页可自助选择其他省份，默认湖南；变化历史同样按省份标注</li>
-            <li><b>更新方式：</b>自动定时抓取比对，有变化即刷新本页</li>
-            <li><b>数据口径：</b>以官网「适用地区」「适用范围」字段为准，仅供参考</li>
-            <li><b>运营商：</b>顶部可切换运营商主题，移动/联通/电信/广电四大运营商已接入数据</li>
-            <li><b>免责声明：</b>展示内容可能存在延迟或误差，办理业务请以营业厅 / 官方客服信息为准</li>
-          </ul>
-        </div>
-      </div>
-    </section>
   </main>
 </div>
 
@@ -1116,7 +1098,7 @@ function __bootReal(){
     var latest = rs[0] || {}, hist = [], ann = rs[1] || {};
     D.updated = latest.updated || "";
     var ps = latest.prov_stats || {};
-    var def = latest.default || "hunan";
+    var def = latest.default || "beijing";
     var hd = latest.dist || {};
     var hp = 0, hg = 0;
     Object.keys(hd).forEach(function(k){
@@ -1210,7 +1192,7 @@ function rebuildProv(){
 rebuildProv();
 
 var state = {
-  view:"overview", prov:"hunan", op:"mobile",
+  view:"overview", prov:"beijing", op:"mobile",
   q:{ search:"", own:"", type:"", sort:"time", dir:"desc", page:1 },
   p:{ search:"", own:"", type:"", sort:"time", dir:"desc", page:1 },
   h:""
@@ -1756,14 +1738,14 @@ function renderAnnounce(){
   var a = D.announce || {};
   var box = document.getElementById("anBox"), desc = document.getElementById("anDesc");
   var op = OP_MAP[state.op];
-  document.getElementById("anTitle").textContent = hasData() ? "湖南移动公告" : (op.name + "公告");
-  document.getElementById("anTabTxt").textContent = hasData() ? "湖南公告" : (op.short + "公告");
+  document.getElementById("anTitle").textContent = hasData() ? "北京移动公告" : (op.name + "公告");
+  document.getElementById("anTabTxt").textContent = hasData() ? "北京公告" : (op.short + "公告");
   if(!hasData()){
     desc.textContent = "暂无接入";
     box.innerHTML = emptyBox(op.name + "公告源待接入");
     return;
   }
-  desc.textContent = "来源：湖南移动官网公告 · 更新于 " + (a.updated || "—");
+  desc.textContent = "来源：中国移动官网公告 · 更新于 " + (a.updated || "—");
   var items = a.items || [];
   if(!items.length){ box.innerHTML = '<div style="color:var(--tx3);font-size:13px">暂无公告</div>'; return; }
   box.innerHTML = items.map(function(x, i){
